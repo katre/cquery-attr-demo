@@ -1,0 +1,35 @@
+load("@bazel_skylib//rules:common_settings.bzl", "bool_flag")
+
+# Define flags.
+bool_flag(
+    name = "a",
+    build_setting_default = False,
+)
+
+config_setting(
+    name = "a_enabled",
+    flag_values = {
+        "//:a": "True",
+    },
+)
+
+# Use flags.
+cc_binary(
+    name = "no_select_copts_present",
+    srcs = ["hello.cc"],
+    copts = ["-Wno-something"],
+)
+
+cc_binary(
+    name = "no_select_copts_missing",
+    srcs = ["hello.cc"],
+)
+
+cc_binary(
+    name = "select_copts",
+    srcs = ["hello.cc"],
+    copts = select({
+        "//:a_enabled": ["-Wno-something"],
+        "//conditions:default": [],
+    }),
+)
